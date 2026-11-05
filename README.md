@@ -1,6 +1,6 @@
 # ChainCounterApp
 
-Android-App für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde. Die App zeigt die `$ISLWND`-Daten des Geräts live an und sendet `$ISLWNS`-Kommandos per UDP. Grundlage ist die HW/SW-Spezifikation V1.4.
+Android-App für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde. Die App zeigt die `$ISLWND`-Daten des Geräts live an und sendet `$ISLWNS`-Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.5](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.5.odt) im Firmware-Repository.
 
 ## Funktionen
 
@@ -49,5 +49,3 @@ app/src/main/java/com/example/chaincounter/
   protocol/Format.kt   Zahlen und Laufzeiten formatieren
 app/src/test/          JUnit-Tests für Protokoll und UDP (Loopback)
 ```
-
-Die Spezifikation liegt absichtlich nicht in diesem öffentlichen Repository, weil sie WLAN-Zugangsdaten enthält.

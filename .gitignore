@@ -8,5 +8,3 @@ local.properties
 *.keystore
 *.jks
 .DS_Store
-# Spezifikation enthaelt WLAN-Zugangsdaten und gehoert nicht in dieses oeffentliche Repository
-*.odt
