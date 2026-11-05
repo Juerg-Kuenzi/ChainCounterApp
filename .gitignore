@@ -1,0 +1,12 @@
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+*.apk
+*.aab
+*.keystore
+*.jks
+.DS_Store
+# Spezifikation enthaelt WLAN-Zugangsdaten und gehoert nicht in dieses oeffentliche Repository
+*.odt

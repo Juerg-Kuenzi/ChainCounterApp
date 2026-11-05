@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ChainCounter</string>
+    <string name="no_value">–</string>
+    <string name="unit_meter">m</string>
+
+    <string name="status_no_wifi">Kein WLAN. Verbinde das Telefon mit dem Bordnetz.</string>
+    <string name="status_waiting">Warte auf Daten auf Port %1$d.</string>
+    <string name="status_receiving">Daten von %1$s</string>
+    <string name="status_port_error">Port %1$d lässt sich nicht öffnen: %2$s</string>
+    <string name="status_invalid">Ungültige Sätze verworfen: %1$d</string>
+    <string name="stale_banner">Keine Daten seit %1$d s. Die Werte sind veraltet.</string>
+    <string name="port_button">Port %1$d</string>
+
+    <string name="direction_down">▼ Richtung runter</string>
+    <string name="direction_up">▲ Richtung hoch</string>
+
+    <string name="label_vcc">Speisung</string>
+    <string name="label_starts">Systemstarts</string>
+    <string name="label_actual_runtime">Laufzeit seit Start</string>
+    <string name="label_total_runtime">Laufzeit gesamt</string>
+    <string name="vcc_value">%1$s V</string>
+
+    <string name="cancel">Abbrechen</string>
+    <string name="counter_storage_hint">Das Gerät speichert den neuen Wert bei der nächsten periodischen Speicherung (alle 15 Minuten) oder bei einem Stromausfall.</string>
+    <string name="no_readback_hint">Das Gerät meldet diesen Wert nicht zurück. Prüfen lässt er sich nur an der seriellen Konsole mit status.</string>
+
+    <string name="zero_button">Zähler nullen</string>
+    <string name="zero_title">Kettenzähler auf 0 setzen?</string>
+    <string name="zero_confirm">Zähler nullen</string>
+    <string name="zero_sent">Zähler nullen gesendet.</string>
+
+    <string name="set_length_button">Länge setzen</string>
+    <string name="length_title">Kettenlänge setzen</string>
+    <string name="length_confirm">Länge setzen</string>
+    <string name="length_hint">Ganze Meter, 0 bis %1$d</string>
+    <string name="length_sent">Länge %1$d m gesendet.</string>
+
+    <string name="debounce_button">Entprellzeit</string>
+    <string name="debounce_title">Entprellzeit senden</string>
+    <string name="debounce_confirm">Senden</string>
+    <string name="debounce_hint">Millisekunden, %1$d bis %2$d</string>
+    <string name="debounce_sent">Entprellzeit %1$d ms gesendet. Das Gerät bestätigt den Wert nicht.</string>
+
+    <string name="factor_button">Umrechnungsfaktor</string>
+    <string name="factor_title">Umrechnungsfaktor senden</string>
+    <string name="factor_confirm">Senden</string>
+    <string name="factor_hint">Meter pro Umdrehung, 0.001 bis 100</string>
+    <string name="factor_sent">Umrechnungsfaktor %1$s m/U gesendet. Das Gerät bestätigt den Wert nicht.</string>
+
+    <string name="port_title">UDP-Port</string>
+    <string name="port_message">Ändert nur den Port dieser App. Am Gerät wird der Port an der seriellen Konsole mit port= gesetzt.</string>
+    <string name="port_confirm">Port ändern</string>
+    <string name="port_hint">%1$d bis %2$d</string>
+
+    <string name="command_no_device">Nicht gesendet: Vom Gerät kommen keine aktuellen Daten.</string>
+    <string name="command_send_failed">Senden fehlgeschlagen: %1$s</string>
+    <string name="command_length_result">%1$s Das Gerät meldet jetzt %2$s m.</string>
+    <string name="command_length_no_data">%1$s Seither kamen keine Daten. Prüfe die Länge, sobald wieder Daten eintreffen.</string>
+</resources>
