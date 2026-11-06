@@ -1,19 +1,20 @@
 # ChainCounterApp
 
-Android-App für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde. Die App zeigt die `$ISLWND`-Daten des Geräts live an und sendet `$ISLWNS`-Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.5](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.5.odt) im Firmware-Repository.
+Android-App für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde. Die App zeigt die `$ISLWND`-Daten des Geräts live an und sendet `$ISLWNS`-Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.6](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.6.odt) im Firmware-Repository.
 
 ## Funktionen
 
-- **Anzeige:** Kettenlänge, Richtung, Speisung, Systemstarts und beide Laufzeiten
-- **Kommandos:** Zähler nullen (`C`), Länge setzen (`C,<m>`), Entprellzeit (`S,<ms>`), Umrechnungsfaktor (`K,<m/U>`)
-- **Warnung bei Datenausfall:** Kommt 3 s lang kein gültiger Satz, erscheint ein Warnbalken, die Länge wird abgeblendet und die Kommandos sind gesperrt
-- **Nachtmodus:** Rote Anzeige auf Schwarz, wenn das Telefon im dunklen Design läuft
+- **Hauptbildschirm:** Kettenlänge, Richtung (Auf oder Ab) und Speisung. Kommt 3 s lang kein gültiger Satz, erscheint unter den Daten eine Warnung und die Länge wird abgeblendet.
+- **Menü > Einstellungen:** Hell/Dunkel, Zähler nullen (`C`), Länge setzen (`C,<m>`), Portnummer, Entprellzeit (`S,<ms>`), Umrechnungsfaktor (`K,<m/U>`), Restart (`R`, ab Firmware 1.2.0)
+- **Menü > Informationen:** Systemstarts, Laufzeiten, Adresse des Geräts, App-Version
+- **Rückmeldung:** Jede Einstellung zeigt den zuletzt gesendeten Wert. Fällt der Empfang aus und kommt zurück, meldet die Seite „Empfang wieder hergestellt“.
+- **Dunkles Design:** Rote Anzeige auf Schwarz, damit die Nachtsicht erhalten bleibt. Solange der Schalter nie betätigt wurde, folgt die App der Android-Einstellung.
 
 Factory Reset (`F`) ist bewusst nicht enthalten. Die App läuft nur im Vordergrund und hält dabei den Bildschirm an.
 
 ## Verhalten am Gerät
 
-- Das Gerät quittiert keine Kommandos. Nach `C` zeigt die App, welche Länge das Gerät 2,5 s später meldet. Entprellzeit und Faktor meldet das Gerät nicht zurück, sie lassen sich nur an der seriellen Konsole mit `status` prüfen.
+- Das Gerät quittiert keine Kommandos. Die gemeldete Länge steht auf den Seiten „Zähler nullen“ und „Länge setzen“. Entprellzeit und Faktor meldet das Gerät nicht zurück, sie lassen sich nur an der seriellen Konsole mit `status` prüfen.
 - Kommandos gehen per Unicast an die Adresse, von der die `$ISLWND`-Sätze kommen, und auf den eingestellten Port (Standard 1467).
 - Die App bindet ihren Socket an das WLAN, auch wenn dieses keinen Internetzugang hat.
 - Das Feld `ChainDirection` meldet den Zustand des Signals und nicht, ob die Kette läuft. Es bleibt also auch beim Stillstand gesetzt.
@@ -42,10 +43,11 @@ python3 tools/simulate_device.py --port 1467
 
 ```
 app/src/main/java/com/example/chaincounter/
-  MainActivity.kt      Oberfläche, WLAN-Anbindung, Datenausfall-Erkennung
+  MainActivity.kt      Oberfläche und WLAN-Anbindung
+  SessionState.kt      Datenstand, Datenausfall und Empfangsmeldung
   net/UdpLink.kt       UDP senden und empfangen, ohne Android-Abhängigkeit
   protocol/Nmea.kt     Checksumme und Parser für $ISLWND
   protocol/Commands.kt $ISLWNS-Kommandos und Prüfung der Eingaben
   protocol/Format.kt   Zahlen und Laufzeiten formatieren
-app/src/test/          JUnit-Tests für Protokoll und UDP (Loopback)
+app/src/test/          JUnit-Tests für Protokoll, Datenausfall und UDP (Loopback)
 ```

@@ -21,6 +21,9 @@ def sentence(body: str) -> str:
     return f"${body}*{checksum(body):02X}"
 
 
+RESTART_SECONDS = 8
+
+
 class Device:
     def __init__(self) -> None:
         self.turns = 0
@@ -28,6 +31,7 @@ class Device:
         self.debounce = 10
         self.direction = 0
         self.started = time.monotonic()
+        self.silent_until = 0.0
 
     def tx(self) -> str:
         runtime = int(time.monotonic() - self.started)
@@ -49,6 +53,10 @@ class Device:
             self.turns = 0
         elif command == "C" and len(args) == 1 and re.fullmatch(r"-?\d+", args[0]):
             self.turns = round(int(args[0]) / self.factor)
+        elif command == "R" and not args:
+            self.silent_until = time.monotonic() + RESTART_SECONDS
+            self.started = self.silent_until
+            return f"ok: Neustart, {RESTART_SECONDS} s keine Daten"
         elif command == "S" and len(args) == 1 and args[0].isdigit() and 1 <= int(args[0]) <= 1000:
             self.debounce = int(args[0])
         elif command == "K" and len(args) == 1 and 0.001 <= float(args[0]) <= 100:
@@ -78,7 +86,8 @@ def main() -> None:
     while args.seconds is None or time.monotonic() - begin < args.seconds:
         now = time.monotonic()
         if now >= next_tx:
-            sock.sendto(device.tx().encode("ascii"), (args.target, args.target_port or args.port))
+            if now >= device.silent_until:
+                sock.sendto(device.tx().encode("ascii"), (args.target, args.target_port or args.port))
             next_tx += 1
         try:
             data, sender = sock.recvfrom(512)

@@ -64,6 +64,7 @@ class NmeaTest {
     @Test fun buildsCommandsLikeFirmwareDocumentation() {
         assertEquals("\$ISLWNS,K,0.42*4F", Command.SetFactor(BigDecimal("0.42")).sentence)
         assertEquals("\$ISLWNS,C*73", Command.ZeroCounter.sentence)
+        assertEquals("\$ISLWNS,R*62", Command.Restart.sentence)
         assertEquals(Nmea.sentence("ISLWNS,C,25"), Command.SetLength(25).sentence)
         assertEquals(Nmea.sentence("ISLWNS,S,10"), Command.SetDebounce(10).sentence)
     }
