@@ -5,6 +5,7 @@ import java.math.BigDecimal
 /** Kommandos $ISLWNS. Factory Reset (F) ist in dieser App bewusst nicht enthalten. */
 sealed class Command(private val parameters: String) {
     data object ZeroCounter : Command("C")
+    data object Restart : Command("R")
     data class SetLength(val meters: Int) : Command("C,$meters")
     data class SetDebounce(val millis: Int) : Command("S,$millis")
     data class SetFactor(val metersPerTurn: BigDecimal) :
