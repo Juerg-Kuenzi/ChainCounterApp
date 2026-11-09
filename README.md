@@ -27,7 +27,27 @@ Mit Android Studio öffnen, oder mit JDK 17 und installiertem Android SDK:
 ./gradlew testDebugUnitTest lintDebug assembleDebug
 ```
 
-Die APK liegt danach unter `app/build/outputs/apk/debug/`. Der Workflow [`android.yml`](.github/workflows/android.yml) macht bei jedem Push dasselbe und stellt die APK als Artefakt bereit. Jeder Lauf signiert mit einem neuen Debug-Schlüssel, deshalb muss die App vor der Installation einer neuen CI-APK deinstalliert werden.
+Die APK liegt danach unter `app/build/outputs/apk/debug/`. Der Workflow [`android.yml`](.github/workflows/android.yml) macht bei jedem Push dasselbe und stellt die APK als Artefakt bereit.
+
+## Signaturschlüssel
+
+Android installiert ein Update nur, wenn die neue APK mit demselben Schlüssel signiert ist wie die installierte App. Der Workflow signiert deshalb mit einem festen Schlüssel aus zwei Repository-Secrets (*Settings > Secrets and variables > Actions*):
+
+| Secret | Inhalt |
+|---|---|
+| `SIGNING_KEYSTORE_BASE64` | Schlüsseldatei `chaincounter-release.p12` als Base64 in einer Zeile |
+| `SIGNING_PASSWORD` | Passwort der Schlüsseldatei, Alias `chaincounter` |
+
+- **Push auf `main`:** Ohne die Secrets schlägt der Lauf fehl. Zusätzlich prüft er, dass die APK das Zertifikat mit dem SHA-256-Fingerabdruck `5267a4774b658ff05b583b8e7bec96862c12af42b2410a04e77498f9ada0ef32` trägt.
+- **Pull Requests ohne Secrets** (z. B. aus Forks): Der Lauf signiert mit einem Wegwerf-Schlüssel. Eine solche APK ersetzt die installierte App nicht.
+- **Lokal:** Ohne weitere Einstellung gilt der Debug-Schlüssel des eigenen Rechners. Damit Builds aus Android Studio die CI-APK ersetzen können, im Projektordner eine Datei `keystore.properties` anlegen. Sie steht in `.gitignore`:
+
+  ```
+  storeFile=/pfad/zu/chaincounter-release.p12
+  password=<Passwort>
+  ```
+
+Den Schlüssel sicher aufbewahren. Geht er verloren, lassen sich installierte Apps nur noch durch Deinstallieren und Neuinstallieren ersetzen.
 
 Die `applicationId` `com.example.chaincounter` ist ein Platzhalter und vor einer Veröffentlichung im Play Store zu ersetzen.
 
