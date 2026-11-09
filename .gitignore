@@ -8,3 +8,7 @@ local.properties
 *.keystore
 *.jks
 .DS_Store
+
+# Lokaler Signaturschluessel, siehe README
+keystore.properties
+*.p12

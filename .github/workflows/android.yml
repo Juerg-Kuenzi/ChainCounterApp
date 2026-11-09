@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+env:
+  # Fingerabdruck des festen Signaturschluessels. Er ist oeffentlich, der Schluessel selbst liegt in den Secrets.
+  EXPECTED_CERT_SHA256: 5267a4774b658ff05b583b8e7bec96862c12af42b2410a04e77498f9ada0ef32
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,8 +32,47 @@ jobs:
       # Prueft auch, dass gradle-wrapper.jar ein offizielles Gradle-Release ist.
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Signaturschluessel bereitstellen
+        env:
+          KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          keystore="$RUNNER_TEMP/chaincounter.p12"
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$SIGNING_PASSWORD" ]; then
+            printf '%s' "$KEYSTORE_BASE64" | tr -d ' \r\n' | base64 --decode > "$keystore"
+            echo "SIGNING_KIND=fixed" >> "$GITHUB_ENV"
+          elif [ "$EVENT" = "pull_request" ]; then
+            # Ohne Secrets (z. B. bei Pull Requests aus Forks) ein Wegwerf-Schluessel,
+            # damit die Signatur-Konfiguration trotzdem durchlaufen wird.
+            echo "::warning::Secrets fehlen. Diese APK ist mit einem Wegwerf-Schluessel signiert und ersetzt die installierte App nicht."
+            keytool -genkeypair -storetype PKCS12 -keystore "$keystore" -alias chaincounter \
+              -keyalg RSA -keysize 2048 -validity 1 -storepass throwaway -keypass throwaway \
+              -dname "CN=Wegwerf" > /dev/null
+            echo "SIGNING_PASSWORD=throwaway" >> "$GITHUB_ENV"
+            echo "SIGNING_KIND=throwaway" >> "$GITHUB_ENV"
+          else
+            echo "::error::Die Secrets SIGNING_KEYSTORE_BASE64 und SIGNING_PASSWORD fehlen. Siehe README, Abschnitt Signaturschluessel."
+            exit 1
+          fi
+          echo "SIGNING_KEYSTORE_FILE=$keystore" >> "$GITHUB_ENV"
+
       - name: Tests, Lint und Debug-APK
+        env:
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD || env.SIGNING_PASSWORD }}
         run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug
+
+      - name: Signatur pruefen
+        run: |
+          apk=$(ls app/build/outputs/apk/debug/*.apk)
+          actual=$("$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs "$apk" \
+            | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')
+          echo "Zertifikat SHA-256: $actual"
+          if [ "$SIGNING_KIND" = "fixed" ] && [ "$actual" != "$EXPECTED_CERT_SHA256" ]; then
+            echo "::error::Die APK ist nicht mit dem festen Schluessel signiert. Erwartet: $EXPECTED_CERT_SHA256"
+            exit 1
+          fi
+          rm -f "$SIGNING_KEYSTORE_FILE"
 
       - uses: actions/upload-artifact@v4
         with:
