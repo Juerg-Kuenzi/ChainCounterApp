@@ -2,7 +2,7 @@
 """Simuliert den ChainCounter: sendet 1x pro Sekunde $ISLWND und verarbeitet $ISLWNS.
 
 PC und Telefon muessen im selben WLAN sein. Nur Python-Standardbibliothek.
-Beispiel: python3 tools/simulate_device.py --port 1467
+Beispiel: python3 tools/simulate_device.py --port 1458
 """
 import argparse
 import re
@@ -68,7 +68,7 @@ class Device:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port", type=int, default=1467)
+    parser.add_argument("--port", type=int, default=1458)
     parser.add_argument("--target", default="255.255.255.255", help="Ziel der $ISLWND-Saetze")
     parser.add_argument("--target-port", type=int, help="Zielport, Standard: --port")
     parser.add_argument("--seconds", type=float, help="nach dieser Zeit beenden")
