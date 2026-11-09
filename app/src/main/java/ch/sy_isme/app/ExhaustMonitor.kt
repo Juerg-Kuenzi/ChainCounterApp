@@ -1,4 +1,4 @@
-package com.example.chaincounter
+package ch.sy_isme.app
 
 /** Abgastemperatur, Datenausfall und Alarm. Enthaelt keinen Android-Code. */
 class ExhaustMonitor {

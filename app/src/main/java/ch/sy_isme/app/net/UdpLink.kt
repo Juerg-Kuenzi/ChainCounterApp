@@ -1,4 +1,4 @@
-package com.example.chaincounter.net
+package ch.sy_isme.app.net
 
 import java.io.IOException
 import java.net.DatagramPacket

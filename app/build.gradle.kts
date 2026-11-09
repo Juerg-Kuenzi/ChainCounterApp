@@ -20,15 +20,15 @@ val signingKeystore = signingValue("SIGNING_KEYSTORE_FILE", "storeFile")
 val signingPassword = signingValue("SIGNING_PASSWORD", "password")
 
 android {
-    namespace = "com.example.chaincounter"
+    namespace = "ch.sy_isme.app"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.chaincounter"
+        applicationId = "ch.sy_isme.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = 4
+        versionName = "2.0.0"
     }
 
     val fixedSigning = if (signingKeystore != null && signingPassword != null) {

@@ -1,4 +1,4 @@
-package com.example.chaincounter.protocol
+package ch.sy_isme.app.protocol
 
 /** Ein CAN-Frame vom NMEA2000-Bus. */
 class CanFrame(val pgn: Int, val sourceAddress: Int, val priority: Int, val data: ByteArray)

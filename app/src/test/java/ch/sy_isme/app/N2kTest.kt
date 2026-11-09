@@ -1,9 +1,9 @@
-package com.example.chaincounter
+package ch.sy_isme.app
 
-import com.example.chaincounter.protocol.DuplicateFilter
-import com.example.chaincounter.protocol.N2kTemperature
-import com.example.chaincounter.protocol.TemperatureSelector
-import com.example.chaincounter.protocol.YdRaw
+import ch.sy_isme.app.protocol.DuplicateFilter
+import ch.sy_isme.app.protocol.N2kTemperature
+import ch.sy_isme.app.protocol.TemperatureSelector
+import ch.sy_isme.app.protocol.YdRaw
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

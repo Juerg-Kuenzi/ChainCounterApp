@@ -1,6 +1,6 @@
-package com.example.chaincounter
+package ch.sy_isme.app
 
-import com.example.chaincounter.protocol.WindlassData
+import ch.sy_isme.app.protocol.WindlassData
 import java.net.InetAddress
 
 enum class Screen {

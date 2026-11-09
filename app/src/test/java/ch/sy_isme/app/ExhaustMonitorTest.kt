@@ -1,4 +1,4 @@
-package com.example.chaincounter
+package ch.sy_isme.app
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

@@ -1,4 +1,4 @@
-package com.example.chaincounter.protocol
+package ch.sy_isme.app.protocol
 
 import java.math.BigDecimal
 

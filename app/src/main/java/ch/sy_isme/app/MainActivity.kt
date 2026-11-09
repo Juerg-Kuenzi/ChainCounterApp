@@ -1,4 +1,4 @@
-package com.example.chaincounter
+package ch.sy_isme.app
 
 import android.animation.ValueAnimator
 import android.app.Activity
@@ -28,17 +28,17 @@ import android.widget.PopupMenu
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.ViewFlipper
-import com.example.chaincounter.net.UdpLink
-import com.example.chaincounter.protocol.ChainDirection
-import com.example.chaincounter.protocol.Command
-import com.example.chaincounter.protocol.DuplicateFilter
-import com.example.chaincounter.protocol.Format
-import com.example.chaincounter.protocol.Inputs
-import com.example.chaincounter.protocol.N2kTemperature
-import com.example.chaincounter.protocol.Nmea
-import com.example.chaincounter.protocol.ParseResult
-import com.example.chaincounter.protocol.TemperatureSelector
-import com.example.chaincounter.protocol.YdRaw
+import ch.sy_isme.app.net.UdpLink
+import ch.sy_isme.app.protocol.ChainDirection
+import ch.sy_isme.app.protocol.Command
+import ch.sy_isme.app.protocol.DuplicateFilter
+import ch.sy_isme.app.protocol.Format
+import ch.sy_isme.app.protocol.Inputs
+import ch.sy_isme.app.protocol.N2kTemperature
+import ch.sy_isme.app.protocol.Nmea
+import ch.sy_isme.app.protocol.ParseResult
+import ch.sy_isme.app.protocol.TemperatureSelector
+import ch.sy_isme.app.protocol.YdRaw
 import java.io.IOException
 import java.net.InetAddress
 import kotlin.math.abs

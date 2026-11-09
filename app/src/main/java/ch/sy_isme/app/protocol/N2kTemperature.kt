@@ -1,4 +1,4 @@
-package com.example.chaincounter.protocol
+package ch.sy_isme.app.protocol
 
 data class Temperature(val instance: Int, val source: Int, val celsius: Double)
 
