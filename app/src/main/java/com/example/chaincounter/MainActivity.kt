@@ -1,9 +1,12 @@
 package com.example.chaincounter
 
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -14,6 +17,8 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.text.InputType
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -22,15 +27,21 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.Switch
 import android.widget.TextView
+import android.widget.ViewFlipper
 import com.example.chaincounter.net.UdpLink
 import com.example.chaincounter.protocol.ChainDirection
 import com.example.chaincounter.protocol.Command
+import com.example.chaincounter.protocol.DuplicateFilter
 import com.example.chaincounter.protocol.Format
 import com.example.chaincounter.protocol.Inputs
+import com.example.chaincounter.protocol.N2kTemperature
 import com.example.chaincounter.protocol.Nmea
 import com.example.chaincounter.protocol.ParseResult
+import com.example.chaincounter.protocol.TemperatureSelector
+import com.example.chaincounter.protocol.YdRaw
 import java.io.IOException
 import java.net.InetAddress
+import kotlin.math.abs
 
 class MainActivity : Activity() {
 
@@ -39,16 +50,28 @@ class MainActivity : Activity() {
     private lateinit var connectivity: ConnectivityManager
     private lateinit var multicastLock: WifiManager.MulticastLock
     private lateinit var session: SessionState
+    private lateinit var gestures: GestureDetector
 
     private lateinit var screens: Map<Screen, View>
+    private lateinit var pager: ViewFlipper
+    private lateinit var pageTitle: TextView
+    private lateinit var pageDots: TextView
     private lateinit var lengthValue: TextView
     private lateinit var directionValue: TextView
     private lateinit var vccValue: TextView
     private lateinit var mainWarning: TextView
+    private lateinit var chainAlarmBanner: TextView
+    private lateinit var exhaustValue: TextView
+    private lateinit var alarmLimitValue: TextView
+    private lateinit var exhaustAlarm: View
+    private lateinit var exhaustAlarmText: TextView
+    private lateinit var muteButton: Button
+    private lateinit var n2kWarning: TextView
     private lateinit var startsValue: TextView
     private lateinit var actualRuntimeValue: TextView
     private lateinit var totalRuntimeValue: TextView
     private lateinit var deviceValue: TextView
+    private lateinit var bridgeValue: TextView
     private lateinit var versionValue: TextView
     private lateinit var invalidRow: View
     private lateinit var invalidValue: TextView
@@ -61,9 +84,14 @@ class MainActivity : Activity() {
     private lateinit var detailConnection: TextView
 
     private var port = DEFAULT_PORT
+    private var n2kPort = DEFAULT_N2K_PORT
+    private var alarmLimit = DEFAULT_ALARM_LIMIT
     private var network: Network? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var link: UdpLink? = null
+    private var n2kLink: UdpLink? = null
+    private var tone: ToneGenerator? = null
+    private var lastToneAt = 0L
 
     private val ticker = object : Runnable {
         override fun run() {
@@ -97,6 +125,8 @@ class MainActivity : Activity() {
         session = lastNonConfigurationInstance as? SessionState ?: SessionState()
         prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         port = prefs.getInt(PREF_PORT, DEFAULT_PORT)
+        n2kPort = prefs.getInt(PREF_N2K_PORT, DEFAULT_N2K_PORT)
+        alarmLimit = prefs.getInt(PREF_ALARM_LIMIT, DEFAULT_ALARM_LIMIT)
         connectivity = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         multicastLock = wifi.createMulticastLock("chaincounter").apply {
@@ -105,6 +135,7 @@ class MainActivity : Activity() {
 
         bindViews()
         setUpNavigation()
+        setUpPages()
         setUpDarkSwitch()
         versionValue.text = packageManager.getPackageInfo(packageName, 0).versionName
         showScreen(session.screen)
@@ -124,15 +155,28 @@ class MainActivity : Activity() {
             Screen.DEBOUNCE to detail,
             Screen.FACTOR to detail,
             Screen.RESTART to detail,
+            Screen.N2K_PORT to detail,
+            Screen.EXHAUST_ALARM to detail,
         )
+        pager = findViewById(R.id.pager)
+        pageTitle = findViewById(R.id.page_title)
+        pageDots = findViewById(R.id.page_dots)
         lengthValue = findViewById(R.id.length_value)
         directionValue = findViewById(R.id.direction_value)
         vccValue = findViewById(R.id.vcc_value)
         mainWarning = findViewById(R.id.main_warning)
+        chainAlarmBanner = findViewById(R.id.chain_alarm_banner)
+        exhaustValue = findViewById(R.id.exhaust_value)
+        alarmLimitValue = findViewById(R.id.alarm_limit_value)
+        exhaustAlarm = findViewById(R.id.exhaust_alarm)
+        exhaustAlarmText = findViewById(R.id.exhaust_alarm_text)
+        muteButton = findViewById(R.id.mute_button)
+        n2kWarning = findViewById(R.id.n2k_warning)
         startsValue = findViewById(R.id.starts_value)
         actualRuntimeValue = findViewById(R.id.actual_runtime_value)
         totalRuntimeValue = findViewById(R.id.total_runtime_value)
         deviceValue = findViewById(R.id.device_value)
+        bridgeValue = findViewById(R.id.bridge_value)
         versionValue = findViewById(R.id.version_value)
         invalidRow = findViewById(R.id.invalid_row)
         invalidValue = findViewById(R.id.invalid_value)
@@ -167,11 +211,56 @@ class MainActivity : Activity() {
             R.id.row_debounce to Screen.DEBOUNCE,
             R.id.row_factor to Screen.FACTOR,
             R.id.row_restart to Screen.RESTART,
+            R.id.row_n2k_port to Screen.N2K_PORT,
+            R.id.row_alarm to Screen.EXHAUST_ALARM,
         )
         rows.forEach { (id, screen) ->
             findViewById<Button>(id).setOnClickListener { showScreen(screen) }
         }
         detailSend.setOnClickListener { submitDetail() }
+        muteButton.setOnClickListener {
+            session.exhaust.mute()
+            tone?.stopTone()
+            render()
+        }
+        chainAlarmBanner.setOnClickListener { showPage(PAGE_N2K) }
+    }
+
+    /** Zwei Seiten, gewechselt durch seitliches Wischen oder Tippen auf die Punkte. */
+    private fun setUpPages() {
+        pager.displayedChild = session.page
+        val threshold = SWIPE_MIN_DP * resources.displayMetrics.density
+        gestures = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                if (e1 == null) return false
+                val dx = e2.x - e1.x
+                val dy = e2.y - e1.y
+                if (abs(dx) < threshold || abs(dx) < 2 * abs(dy)) return false
+                showPage(if (dx < 0) session.page + 1 else session.page - 1)
+                return true
+            }
+        })
+        pageDots.setOnClickListener { showPage((session.page + 1) % PAGE_COUNT) }
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (session.screen == Screen.MAIN) gestures.onTouchEvent(event)
+        return super.dispatchTouchEvent(event)
+    }
+
+    private fun showPage(page: Int) {
+        if (page < 0 || page >= PAGE_COUNT || page == session.page) return
+        if (ValueAnimator.areAnimatorsEnabled()) {
+            val forward = page > session.page
+            pager.setInAnimation(this, if (forward) R.anim.slide_in_right else R.anim.slide_in_left)
+            pager.setOutAnimation(this, if (forward) R.anim.slide_out_left else R.anim.slide_out_right)
+        } else {
+            pager.inAnimation = null
+            pager.outAnimation = null
+        }
+        session.page = page
+        pager.displayedChild = page
+        render()
     }
 
     private fun setUpDarkSwitch() {
@@ -231,6 +320,14 @@ class MainActivity : Activity() {
                 number or InputType.TYPE_NUMBER_FLAG_DECIMAL, getString(R.string.factor_hint),
             )
             Screen.RESTART -> setDetail(R.string.restart_title, R.string.restart_message, R.string.restart_title)
+            Screen.N2K_PORT -> setDetail(
+                R.string.n2k_port_title, R.string.n2k_port_message, R.string.port_confirm,
+                number, getString(R.string.port_hint, Inputs.PORT_MIN, Inputs.PORT_MAX), n2kPort.toString(),
+            )
+            Screen.EXHAUST_ALARM -> setDetail(
+                R.string.alarm_title, R.string.alarm_message, R.string.save,
+                number, getString(R.string.alarm_hint, Inputs.ALARM_MIN, Inputs.ALARM_MAX), alarmLimit.toString(),
+            )
             else -> Unit
         }
     }
@@ -272,6 +369,13 @@ class MainActivity : Activity() {
                 send(Command.SetFactor(factor), getString(R.string.factor_sent, factor.toPlainString()))
             }
             Screen.PORT -> Inputs.port(text).orInputError { newPort -> changePort(newPort) }
+            Screen.N2K_PORT -> Inputs.port(text).orInputError { newPort -> changeN2kPort(newPort) }
+            Screen.EXHAUST_ALARM -> Inputs.alarm(text).orInputError { limit ->
+                alarmLimit = limit
+                prefs.edit().putInt(PREF_ALARM_LIMIT, limit).apply()
+                session.messages[Screen.EXHAUST_ALARM] = getString(R.string.alarm_saved, limit)
+                render()
+            }
             else -> Unit
         }
     }
@@ -302,11 +406,30 @@ class MainActivity : Activity() {
     }
 
     private fun changePort(newPort: Int) {
+        if (newPort == n2kPort) {
+            detailInput.error = getString(R.string.port_in_use)
+            return
+        }
         port = newPort
         prefs.edit().putInt(PREF_PORT, newPort).apply()
         session.forgetDevice()
         session.messages[Screen.PORT] = getString(R.string.port_changed, newPort)
-        startLink()
+        startLinks()
+        render()
+    }
+
+    private fun changeN2kPort(newPort: Int) {
+        if (newPort == port) {
+            detailInput.error = getString(R.string.port_in_use)
+            return
+        }
+        n2kPort = newPort
+        prefs.edit().putInt(PREF_N2K_PORT, newPort).apply()
+        session.exhaust.forget()
+        session.bridgeAddress = null
+        session.n2kReceiveError = null
+        session.messages[Screen.N2K_PORT] = getString(R.string.port_changed, newPort)
+        startLinks()
         render()
     }
 
@@ -318,6 +441,11 @@ class MainActivity : Activity() {
     override fun onStart() {
         super.onStart()
         multicastLock.acquire()
+        tone = try {
+            ToneGenerator(AudioManager.STREAM_ALARM, ToneGenerator.MAX_VOLUME)
+        } catch (_: RuntimeException) {
+            null
+        }
         // WLAN ohne Internet ist an Bord der Normalfall. Android wuerde sonst auf Mobilfunk routen.
         val request = NetworkRequest.Builder()
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
@@ -327,14 +455,14 @@ class MainActivity : Activity() {
             override fun onAvailable(available: Network) {
                 if (available != network) {
                     network = available
-                    startLink()
+                    startLinks()
                 }
             }
 
             override fun onLost(lost: Network) {
                 if (lost == network) {
                     network = null
-                    stopLink()
+                    stopLinks()
                     render()
                 }
             }
@@ -349,13 +477,15 @@ class MainActivity : Activity() {
         networkCallback?.let(connectivity::unregisterNetworkCallback)
         networkCallback = null
         network = null
-        stopLink()
+        stopLinks()
+        tone?.release()
+        tone = null
         if (multicastLock.isHeld) multicastLock.release()
         super.onStop()
     }
 
-    private fun startLink() {
-        stopLink()
+    private fun startLinks() {
+        stopLinks()
         val active = network ?: return
         link = UdpLink(
             port = port,
@@ -384,11 +514,47 @@ class MainActivity : Activity() {
                 }
             },
         ).also { it.start() }
+
+        // Auswertung auf dem Empfangs-Thread: Die Bridge sendet einige hundert Frames pro Sekunde.
+        val duplicates = DuplicateFilter()
+        val exhaust = TemperatureSelector(source = N2kTemperature.SOURCE_EXHAUST_GAS)
+        n2kLink = UdpLink(
+            port = n2kPort,
+            bufferSize = N2K_BUFFER_SIZE,
+            configureSocket = { active.bindSocket(it) },
+            listener = object : UdpLink.Listener {
+                override fun onSentence(text: String, sender: InetAddress) {
+                    val now = SystemClock.elapsedRealtime()
+                    if (duplicates.isDuplicate(text, now)) return
+                    var latest: Double? = null
+                    for (frame in YdRaw.parsePacket(text)) {
+                        exhaust.onFrame(frame, now)?.let { latest = it }
+                    }
+                    val value = latest
+                    main.post {
+                        session.bridgeAddress = sender
+                        session.n2kReceiveError = null
+                        if (value != null) {
+                            session.exhaust.onReading(value, SystemClock.elapsedRealtime())
+                            render()
+                        }
+                    }
+                }
+
+                override fun onReceiveError(error: IOException) {
+                    main.post { session.n2kReceiveError = error.message ?: error.toString() }
+                }
+
+                override fun onSendResult(sentence: String, error: IOException?) = Unit
+            },
+        ).also { it.start() }
     }
 
-    private fun stopLink() {
+    private fun stopLinks() {
         link?.stop()
         link = null
+        n2kLink?.stop()
+        n2kLink = null
     }
 
     private fun handleSentence(text: String, sender: InetAddress) {
@@ -405,9 +571,19 @@ class MainActivity : Activity() {
     private fun render() {
         val now = SystemClock.elapsedRealtime()
         session.onTick(now)
+        session.exhaust.update(now, alarmLimit.toDouble())
+        renderPageHeader()
         renderMain(now)
+        renderN2k(now)
         renderInfo()
         if (session.screen.isDetail) renderDetail(now)
+        soundAlarm(now)
+    }
+
+    private fun renderPageHeader() {
+        pageTitle.setText(if (session.page == PAGE_CHAIN) R.string.page_chain else R.string.page_n2k)
+        pageDots.text = if (session.page == PAGE_CHAIN) "● ○" else "○ ●"
+        pageDots.contentDescription = getString(R.string.page_position, session.page + 1, PAGE_COUNT)
     }
 
     private fun renderMain(now: Long) {
@@ -429,6 +605,56 @@ class MainActivity : Activity() {
         val warning = connectionWarning(now)
         mainWarning.text = warning
         mainWarning.visibility = if (warning == null) View.GONE else View.VISIBLE
+
+        // Der Alarm muss auch auf der Seite der Ankerkette sichtbar sein.
+        val alarm = session.exhaust.alarmActive
+        chainAlarmBanner.visibility = if (alarm) View.VISIBLE else View.GONE
+        if (alarm) chainAlarmBanner.text = alarmText()
+    }
+
+    private fun alarmText(): String = getString(
+        R.string.alarm_banner,
+        Format.oneDecimal(session.exhaust.celsius ?: 0.0),
+        alarmLimit,
+    )
+
+    private fun renderN2k(now: Long) {
+        val exhaust = session.exhaust
+        val fresh = exhaust.isFresh(now)
+        val value = exhaust.celsius
+        exhaustValue.text = if (value == null) {
+            getString(R.string.no_value)
+        } else {
+            getString(R.string.celsius_value, Format.oneDecimal(value))
+        }
+        exhaustValue.setTextColor(getColor(if (fresh) R.color.ink else R.color.muted))
+        alarmLimitValue.text = getString(R.string.celsius_whole, alarmLimit)
+
+        exhaustAlarm.visibility = if (exhaust.alarmActive) View.VISIBLE else View.GONE
+        if (exhaust.alarmActive) {
+            exhaustAlarmText.text = alarmText()
+            muteButton.visibility = if (exhaust.muted) View.GONE else View.VISIBLE
+        }
+
+        val warning = when {
+            fresh -> null
+            network == null -> getString(R.string.status_no_wifi)
+            value != null -> getString(R.string.exhaust_stale, exhaust.secondsSinceData(now))
+            session.n2kReceiveError != null ->
+                getString(R.string.status_port_error, n2kPort, session.n2kReceiveError)
+            session.bridgeAddress != null -> getString(R.string.exhaust_waiting_sensor)
+            else -> getString(R.string.status_waiting, n2kPort)
+        }
+        n2kWarning.text = warning
+        n2kWarning.visibility = if (warning == null) View.GONE else View.VISIBLE
+    }
+
+    /** Wiederholter Ton, solange der Alarm aktiv und nicht stummgeschaltet ist. */
+    private fun soundAlarm(now: Long) {
+        if (!session.exhaust.toneWanted) return
+        if (now - lastToneAt < TONE_INTERVAL_MS) return
+        lastToneAt = now
+        tone?.startTone(ToneGenerator.TONE_CDMA_HIGH_L, TONE_DURATION_MS)
     }
 
     /** Null bedeutet: Die angezeigten Daten sind aktuell. */
@@ -456,6 +682,7 @@ class MainActivity : Activity() {
         actualRuntimeValue.text = data?.let { Format.duration(it.actualRuntimeS) } ?: empty
         totalRuntimeValue.text = data?.let { Format.duration(it.totalRuntimeS) } ?: empty
         deviceValue.text = session.deviceAddress?.hostAddress ?: empty
+        bridgeValue.text = session.bridgeAddress?.hostAddress ?: empty
         invalidValue.text = session.invalidSentences.toString()
         invalidRow.visibility = if (session.invalidSentences > 0) View.VISIBLE else View.GONE
     }
@@ -463,6 +690,7 @@ class MainActivity : Activity() {
     private fun renderDetail(now: Long) {
         val screen = session.screen
         val fresh = session.isFresh(now)
+        val local = screen == Screen.PORT || screen == Screen.N2K_PORT || screen == Screen.EXHAUST_ALARM
 
         val showsLength = screen == Screen.ZERO || screen == Screen.LENGTH
         detailCurrent.visibility = if (showsLength) View.VISIBLE else View.GONE
@@ -471,12 +699,13 @@ class MainActivity : Activity() {
             detailCurrent.text = getString(R.string.current_length, length ?: getString(R.string.no_value))
         }
 
-        detailSend.isEnabled = screen == Screen.PORT || fresh
+        detailSend.isEnabled = local || fresh
         val message = session.messages[screen]
         detailMessage.text = message
         detailMessage.visibility = if (message == null) View.GONE else View.VISIBLE
 
-        val warning = connectionWarning(now)
+        // Die ChainCounter-Verbindung ist nur fuer Einstellungen wichtig, die ans Geraet gehen.
+        val warning = if (local) null else connectionWarning(now)
         when {
             warning != null -> {
                 detailConnection.text = warning
@@ -484,7 +713,7 @@ class MainActivity : Activity() {
                 detailConnection.setTextColor(getColor(R.color.on_warning))
                 detailConnection.visibility = View.VISIBLE
             }
-            session.receptionRestored -> {
+            !local && session.receptionRestored -> {
                 detailConnection.setText(R.string.reception_restored)
                 detailConnection.setBackgroundColor(getColor(R.color.rule))
                 detailConnection.setTextColor(getColor(R.color.ink))
@@ -496,10 +725,21 @@ class MainActivity : Activity() {
 
     private companion object {
         const val DEFAULT_PORT = 1467
+        const val DEFAULT_N2K_PORT = 1457
+        const val DEFAULT_ALARM_LIMIT = 50
+        const val N2K_BUFFER_SIZE = 4096
         const val PREFS_NAME = "chaincounter"
         const val PREF_PORT = "udp_port"
+        const val PREF_N2K_PORT = "n2k_port"
+        const val PREF_ALARM_LIMIT = "exhaust_alarm_limit"
         const val PREF_DARK = "dark_mode"
         const val TICK_MS = 500L
+        const val TONE_INTERVAL_MS = 2000L
+        const val TONE_DURATION_MS = 1000
+        const val SWIPE_MIN_DP = 80
+        const val PAGE_CHAIN = 0
+        const val PAGE_N2K = 1
+        const val PAGE_COUNT = 2
         const val MENU_SETTINGS = 1
         const val MENU_INFO = 2
     }

@@ -6,120 +6,294 @@
     android:background="@color/background"
     android:keepScreenOn="true">
 
-    <ScrollView
+    <LinearLayout
         android:id="@+id/main_screen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingEnd="16dp">
 
             <ImageButton
                 android:id="@+id/menu_button"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:layout_marginStart="-8dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/menu"
                 android:src="@drawable/ic_menu" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:baselineAligned="false"
-                android:gravity="bottom"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/length_value"
-                    android:layout_width="0dp"
-                    android:layout_height="170dp"
-                    android:layout_weight="1"
-                    android:autoSizeMaxTextSize="170sp"
-                    android:autoSizeMinTextSize="48sp"
-                    android:autoSizeStepGranularity="2sp"
-                    android:autoSizeTextType="uniform"
-                    android:fontFamily="sans-serif-condensed"
-                    android:fontFeatureSettings="tnum"
-                    android:gravity="bottom|start"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:textColor="@color/ink"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:paddingBottom="12dp"
-                    android:text="@string/unit_meter"
-                    android:textColor="@color/ink"
-                    android:textSize="40sp" />
-            </LinearLayout>
-
             <TextView
-                android:id="@+id/direction_value"
-                android:layout_width="match_parent"
+                android:id="@+id/page_title"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
                 android:textColor="@color/ink"
-                android:textSize="28sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/rule" />
+            <TextView
+                android:id="@+id/page_dots"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:minWidth="64dp"
+                android:textColor="@color/ink"
+                android:textSize="18sp" />
+        </LinearLayout>
 
+        <ViewFlipper
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+    
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="true"
-                android:orientation="horizontal"
-                android:paddingVertical="12dp">
-
-                <TextView
-                    android:layout_width="0dp"
+                android:orientation="vertical"
+                android:padding="16dp">
+    
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/label_vcc"
-                    android:textColor="@color/muted"
-                    android:textSize="17sp" />
-
+                    android:baselineAligned="false"
+                    android:gravity="bottom"
+                    android:orientation="horizontal">
+    
+                    <TextView
+                        android:id="@+id/length_value"
+                        android:layout_width="0dp"
+                        android:layout_height="170dp"
+                        android:layout_weight="1"
+                        android:autoSizeMaxTextSize="170sp"
+                        android:autoSizeMinTextSize="48sp"
+                        android:autoSizeStepGranularity="2sp"
+                        android:autoSizeTextType="uniform"
+                        android:fontFamily="sans-serif-condensed"
+                        android:fontFeatureSettings="tnum"
+                        android:gravity="bottom|start"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:textColor="@color/ink"
+                        android:textStyle="bold" />
+    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:paddingBottom="12dp"
+                        android:text="@string/unit_meter"
+                        android:textColor="@color/ink"
+                        android:textSize="40sp" />
+                </LinearLayout>
+    
                 <TextView
-                    android:id="@+id/vcc_value"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/direction_value"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFeatureSettings="tnum"
-                    android:text="@string/no_value"
+                    android:layout_marginBottom="16dp"
                     android:textColor="@color/ink"
-                    android:textSize="20sp" />
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+    
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/rule" />
+    
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="true"
+                    android:orientation="horizontal"
+                    android:paddingVertical="12dp">
+    
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_vcc"
+                        android:textColor="@color/muted"
+                        android:textSize="17sp" />
+    
+                    <TextView
+                        android:id="@+id/vcc_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFeatureSettings="tnum"
+                        android:text="@string/no_value"
+                        android:textColor="@color/ink"
+                        android:textSize="20sp" />
+                </LinearLayout>
+    
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/rule" />
+    
+                <TextView
+                    android:id="@+id/main_warning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:background="@color/warning"
+                    android:padding="12dp"
+                    android:textColor="@color/on_warning"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+    
+                <TextView
+                    android:id="@+id/chain_alarm_banner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:background="@color/warning"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="12dp"
+                    android:textColor="@color/on_warning"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
             </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/rule" />
-
-            <TextView
-                android:id="@+id/main_warning"
+        </ScrollView>
+    
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+    
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:accessibilityLiveRegion="polite"
-                android:background="@color/warning"
-                android:padding="12dp"
-                android:textColor="@color/on_warning"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
-        </LinearLayout>
-    </ScrollView>
+                android:orientation="vertical"
+                android:padding="16dp">
+    
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/rule" />
+    
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="true"
+                    android:orientation="horizontal"
+                    android:paddingVertical="12dp">
+    
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_exhaust"
+                        android:textColor="@color/muted"
+                        android:textSize="17sp" />
+    
+                    <TextView
+                        android:id="@+id/exhaust_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFeatureSettings="tnum"
+                        android:text="@string/no_value"
+                        android:textColor="@color/ink"
+                        android:textSize="20sp" />
+                </LinearLayout>
+    
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/rule" />
+    
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="true"
+                    android:orientation="horizontal"
+                    android:paddingVertical="12dp">
+    
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_alarm_limit"
+                        android:textColor="@color/muted"
+                        android:textSize="17sp" />
+    
+                    <TextView
+                        android:id="@+id/alarm_limit_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFeatureSettings="tnum"
+                        android:text="@string/no_value"
+                        android:textColor="@color/ink"
+                        android:textSize="20sp" />
+                </LinearLayout>
+    
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/rule" />
+    
+                <LinearLayout
+                    android:id="@+id/exhaust_alarm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@color/warning"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:visibility="gone">
+    
+                    <TextView
+                        android:id="@+id/exhaust_alarm_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:accessibilityLiveRegion="assertive"
+                        android:textColor="@color/on_warning"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+    
+                    <Button
+                        android:id="@+id/mute_button"
+                        style="@style/AlarmButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/mute" />
+                </LinearLayout>
+    
+                <TextView
+                    android:id="@+id/n2k_warning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:background="@color/warning"
+                    android:padding="12dp"
+                    android:textColor="@color/on_warning"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </ScrollView>
+            </ViewFlipper>
+    </LinearLayout>
 
     <ScrollView
         android:id="@+id/settings_screen"
@@ -234,6 +408,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/restart_title" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/rule" />
+
+            <Button
+                android:id="@+id/row_n2k_port"
+                style="@style/MenuRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/n2k_port_title" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/rule" />
+
+            <Button
+                android:id="@+id/row_alarm"
+                style="@style/MenuRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/alarm_title" />
 
             <View
                 android:layout_width="match_parent"
@@ -382,6 +580,36 @@
 
                 <TextView
                     android:id="@+id/device_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFeatureSettings="tnum"
+                    android:text="@string/no_value"
+                    android:textColor="@color/ink"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/rule" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="true"
+                android:orientation="horizontal"
+                android:paddingVertical="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/label_bridge"
+                    android:textColor="@color/muted"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/bridge_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFeatureSettings="tnum"

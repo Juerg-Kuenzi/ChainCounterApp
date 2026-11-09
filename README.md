@@ -1,12 +1,15 @@
 # ChainCounterApp
 
-Android-App für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde. Die App zeigt die `$ISLWND`-Daten des Geräts live an und sendet `$ISLWNS`-Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.6](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.6.odt) im Firmware-Repository.
+Android-App für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde, und für Werte vom NMEA2000-Bus des Boots. Die App zeigt die `$ISLWND`-Daten des Geräts live an und sendet `$ISLWNS`-Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.6](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.6.odt) im Firmware-Repository.
 
 ## Funktionen
 
-- **Hauptbildschirm:** Kettenlänge, Richtung (Auf oder Ab) und Speisung. Kommt 3 s lang kein gültiger Satz, erscheint unter den Daten eine Warnung und die Länge wird abgeblendet.
-- **Menü > Einstellungen:** Hell/Dunkel, Zähler nullen (`C`), Länge setzen (`C,<m>`), Portnummer, Entprellzeit (`S,<ms>`), Umrechnungsfaktor (`K,<m/U>`), Restart (`R`, ab Firmware 1.2.0)
-- **Menü > Informationen:** Systemstarts, Laufzeiten, Adresse des Geräts, App-Version
+- **Zwei Seiten**, gewechselt durch seitliches Wischen oder Tippen auf die Punkte oben rechts. Jede Seite warnt nur über ihre eigene Datenquelle.
+- **Seite Ankerkette:** Kettenlänge, Richtung (Auf oder Ab) und Speisung. Kommt 3 s lang kein gültiger Satz, erscheint unter den Daten eine Warnung und die Länge wird abgeblendet.
+- **Seite NMEA2000:** Abgastemperatur und Alarmwert. Kommt 6 s lang kein Wert, erscheint eine Warnung.
+- **Abgasalarm:** Liegt die Temperatur über dem Alarmwert (Standard 50 °C), erscheint ein Alarmbalken auf beiden Seiten und alle 2 s ertönt ein Ton auf dem Alarm-Lautstärkekanal. „Ton aus“ schaltet den Ton bis zum nächsten Alarm stumm. Der Alarm endet 1 °C unter dem Alarmwert.
+- **Menü > Einstellungen:** Hell/Dunkel, Zähler nullen (`C`), Länge setzen (`C,<m>`), Port ChainCounter, Entprellzeit (`S,<ms>`), Umrechnungsfaktor (`K,<m/U>`), Restart (`R`, ab Firmware 1.2.0), Port NMEA2000, Alarmwert Abgas
+- **Menü > Informationen:** Systemstarts, Laufzeiten, Adressen von ChainCounter und Bridge, App-Version
 - **Rückmeldung:** Jede Einstellung zeigt den zuletzt gesendeten Wert. Fällt der Empfang aus und kommt zurück, meldet die Seite „Empfang wieder hergestellt“.
 - **Dunkles Design:** Rote Anzeige auf Schwarz, damit die Nachtsicht erhalten bleibt. Solange der Schalter nie betätigt wurde, folgt die App der Android-Einstellung.
 
@@ -18,6 +21,13 @@ Factory Reset (`F`) ist bewusst nicht enthalten. Die App läuft nur im Vordergru
 - Kommandos gehen per Unicast an die Adresse, von der die `$ISLWND`-Sätze kommen, und auf den eingestellten Port (Standard 1467).
 - Die App bindet ihren Socket an das WLAN, auch wenn dieses keinen Internetzugang hat.
 - Das Feld `ChainDirection` meldet den Zustand des Signals und nicht, ob die Kette läuft. Es bleibt also auch beim Stillstand gesetzt.
+
+## NMEA2000
+
+- **Bridge:** Yacht Devices YDWG-02, sendet im RAW-Format per UDP auf Port 1457 (einstellbar). Eine Zeile pro CAN-Frame, z. B. `01:36:48.770 R 15FD0C74 FF 00 0E 7A BD 04 FF FF`.
+- **Abgastemperatur:** PGN 130316 „Temperature, Extended Range“ mit Quelle 14 (Exhaust Gas) und Instanz 0, beim Yacht-Devices-Sensor mit `YD:TYPE 14` eingestellt. PGN 130312 dient nur als Ersatz, solange keine 130316 kommt, weil sie nur bis etwa 382 °C reicht. Der Sensor wird an Quelle und Instanz erkannt, nicht an der Busadresse.
+- **Doppelte Pakete:** Identische Pakete innerhalb von 50 ms werden verworfen.
+- **Ton:** Nur solange die App im Vordergrund läuft. Die Lautstärke ist die Alarm-Lautstärke des Telefons.
 
 ## Bauen
 
@@ -53,10 +63,11 @@ Die `applicationId` `com.example.chaincounter` ist ein Platzhalter und vor einer
 
 ## Ohne Hardware testen
 
-`tools/simulate_device.py` verhält sich im Netz wie das Gerät. PC und Telefon müssen im selben WLAN sein:
+`tools/simulate_device.py` verhält sich im Netz wie das Gerät, `tools/simulate_ydwg.py` wie die Bridge mit dem Abgassensor. Die Temperatur steigt und fällt dabei, damit sich der Alarm testen lässt. PC und Telefon müssen im selben WLAN sein:
 
 ```
 python3 tools/simulate_device.py --port 1467
+python3 tools/simulate_ydwg.py --start 40 --step 2 --max 60
 ```
 
 ## Aufbau
@@ -65,9 +76,12 @@ python3 tools/simulate_device.py --port 1467
 app/src/main/java/com/example/chaincounter/
   MainActivity.kt      Oberfläche und WLAN-Anbindung
   SessionState.kt      Datenstand, Datenausfall und Empfangsmeldung
+  ExhaustMonitor.kt    Abgastemperatur, Datenausfall und Alarm
   net/UdpLink.kt       UDP senden und empfangen, ohne Android-Abhängigkeit
   protocol/Nmea.kt     Checksumme und Parser für $ISLWND
   protocol/Commands.kt $ISLWNS-Kommandos und Prüfung der Eingaben
   protocol/Format.kt   Zahlen und Laufzeiten formatieren
+  protocol/YdRaw.kt    YDWG-02-RAW-Format, PGN aus der CAN-ID
+  protocol/N2kTemperature.kt  PGN 130312/130316, Auswahl des Sensors
 app/src/test/          JUnit-Tests für Protokoll, Datenausfall und UDP (Loopback)
 ```

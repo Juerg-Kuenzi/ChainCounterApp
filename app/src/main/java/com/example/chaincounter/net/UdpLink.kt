@@ -18,6 +18,7 @@ import java.util.concurrent.RejectedExecutionException
  */
 class UdpLink(
     private val port: Int,
+    private val bufferSize: Int = DEFAULT_BUFFER_SIZE,
     private val configureSocket: (DatagramSocket) -> Unit = {},
     private val listener: Listener,
 ) {
@@ -77,7 +78,7 @@ class UdpLink(
     }
 
     private fun receiveLoop() {
-        val buffer = ByteArray(BUFFER_SIZE)
+        val buffer = ByteArray(bufferSize)
         while (running) {
             try {
                 val open = openSocket()
@@ -124,7 +125,7 @@ class UdpLink(
     }
 
     private companion object {
-        const val BUFFER_SIZE = 512
+        const val DEFAULT_BUFFER_SIZE = 512
         const val RECEIVE_TIMEOUT_MS = 1000
         const val RETRY_DELAY_MS = 2000L
     }
