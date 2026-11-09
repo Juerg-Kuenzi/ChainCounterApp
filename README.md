@@ -1,6 +1,6 @@
-# ChainCounterApp
+# Ismé
 
-Android-App für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde, und für Werte vom NMEA2000-Bus des Boots. Die App zeigt die `$ISLWND`-Daten des Geräts live an und sendet `$ISLWNS`-Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.6](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.6.odt) im Firmware-Repository.
+Android-App für die Segelyacht Ismé: für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde, und für Werte vom NMEA2000-Bus des Boots. Die App zeigt die `$ISLWND`-Daten des Geräts live an und sendet `$ISLWNS`-Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.6](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.6.odt) im Firmware-Repository.
 
 ## Funktionen
 
@@ -59,7 +59,11 @@ Android installiert ein Update nur, wenn die neue APK mit demselben Schlüssel s
 
 Den Schlüssel sicher aufbewahren. Geht er verloren, lassen sich installierte Apps nur noch durch Deinstallieren und Neuinstallieren ersetzen.
 
-Die `applicationId` `com.example.chaincounter` ist ein Platzhalter und vor einer Veröffentlichung im Play Store zu ersetzen.
+Die App-Kennung ist `ch.sy_isme.app`, abgeleitet von der Domain sy-isme.ch. Bis Version 1.2.0 hiess die App „ChainCounter“ mit der Kennung `com.example.chaincounter`. Für Android ist das eine andere App: Die alte Version einmal deinstallieren.
+
+## App-Icon
+
+Das Icon ist die Silhouette aus dem Logo der Ismé, ohne Schriftzug. Die Kanten wurden im Scan vermessen und als glatte Kurven neu konstruiert, die Masten leicht verbreitert, damit sie auch klein sichtbar bleiben. Es ist ein adaptives Vektor-Icon (`drawable/ic_launcher_foreground.xml`) mit weissem Hintergrund und einer einfarbigen Variante für Themensymbole ab Android 13.
 
 ## Ohne Hardware testen
 
@@ -73,7 +77,7 @@ python3 tools/simulate_ydwg.py --start 40 --step 2 --max 60
 ## Aufbau
 
 ```
-app/src/main/java/com/example/chaincounter/
+app/src/main/java/ch/sy_isme/app/
   MainActivity.kt      Oberfläche und WLAN-Anbindung
   SessionState.kt      Datenstand, Datenausfall und Empfangsmeldung
   ExhaustMonitor.kt    Abgastemperatur, Datenausfall und Alarm

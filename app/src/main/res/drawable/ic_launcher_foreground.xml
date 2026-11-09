@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Silhouette der Ismé, aus dem Logo neu konstruiert. Jede Fläche ist ein eigener Pfad,
+     damit sich überlappende Flächen nicht gegenseitig aufheben. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Fock -->
     <path
-        android:pathData="M45,24 h18 a10,10 0 0 1 10,10 v10 a10,10 0 0 1 -10,10 h-18 a10,10 0 0 1 -10,-10 v-10 a10,10 0 0 1 10,-10 z"
-        android:strokeColor="#EEF3F1"
-        android:strokeWidth="7" />
+        android:fillColor="#FF000000"
+        android:pathData="M46.26,22.95 Q47.31,45.63 48.02,68.30 L35.80,68.30 Q38.79,45.63 46.26,22.95 Z" />
+    <!-- Grosssegel und Besanstagsegel -->
     <path
-        android:pathData="M54,42 v42"
-        android:strokeColor="#EEF3F1"
-        android:strokeLineCap="round"
-        android:strokeWidth="14" />
+        android:fillColor="#FF000000"
+        android:pathData="M47.71,23.71 Q52.73,39.45 57.87,55.20 Q59.80,41.30 61.63,27.39 Q62.35,49.29 63.05,71.19 L49.20,71.19 Q48.48,47.45 47.71,23.71 Z" />
+    <!-- Besan -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M62.69,23.88 Q70.30,47.54 78.19,71.19 L64.15,71.19 Q63.37,47.54 62.69,23.88 Z" />
+    <!-- Kajuete -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M39.89,68.92 L47.83,68.92 L47.83,71.19 L39.89,71.19 Z" />
+    <!-- Rumpf -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M34.84,70.89 L78.66,70.89 L77.55,75.32 Q77.30,75.93 76.56,75.93 Q53.80,76.36 30.41,75.62 L30.17,74.82 Z" />
 </vector>

@@ -1,12 +1,12 @@
-package com.example.chaincounter
+package ch.sy_isme.app
 
-import com.example.chaincounter.protocol.ChainDirection
-import com.example.chaincounter.protocol.Command
-import com.example.chaincounter.protocol.Format
-import com.example.chaincounter.protocol.Inputs
-import com.example.chaincounter.protocol.Nmea
-import com.example.chaincounter.protocol.ParseResult
-import com.example.chaincounter.protocol.WindlassData
+import ch.sy_isme.app.protocol.ChainDirection
+import ch.sy_isme.app.protocol.Command
+import ch.sy_isme.app.protocol.Format
+import ch.sy_isme.app.protocol.Inputs
+import ch.sy_isme.app.protocol.Nmea
+import ch.sy_isme.app.protocol.ParseResult
+import ch.sy_isme.app.protocol.WindlassData
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

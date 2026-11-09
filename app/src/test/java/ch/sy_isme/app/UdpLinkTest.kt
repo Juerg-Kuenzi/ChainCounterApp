@@ -1,6 +1,6 @@
-package com.example.chaincounter
+package ch.sy_isme.app
 
-import com.example.chaincounter.net.UdpLink
+import ch.sy_isme.app.net.UdpLink
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

@@ -1,7 +1,7 @@
-package com.example.chaincounter
+package ch.sy_isme.app
 
-import com.example.chaincounter.protocol.ChainDirection
-import com.example.chaincounter.protocol.WindlassData
+import ch.sy_isme.app.protocol.ChainDirection
+import ch.sy_isme.app.protocol.WindlassData
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
