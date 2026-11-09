@@ -724,7 +724,7 @@ class MainActivity : Activity() {
     }
 
     private companion object {
-        const val DEFAULT_PORT = 1467
+        const val DEFAULT_PORT = 1458
         const val DEFAULT_N2K_PORT = 1457
         const val DEFAULT_ALARM_LIMIT = 50
         const val N2K_BUFFER_SIZE = 4096

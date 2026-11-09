@@ -1,6 +1,6 @@
 # Ismé
 
-Android-App für die Segelyacht Ismé: für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde, und für Werte vom NMEA2000-Bus des Boots. Die App zeigt die `$ISLWND`-Daten des Geräts live an und sendet `$ISLWNS`-Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.6](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.6.odt) im Firmware-Repository.
+Android-App für die Segelyacht Ismé: für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde, und für Werte vom NMEA2000-Bus des Boots. Die App zeigt die `$ISLWND`-Daten des Geräts live an und sendet `$ISLWNS`-Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.7](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.7.odt) im Firmware-Repository.
 
 ## Funktionen
 
@@ -18,7 +18,7 @@ Factory Reset (`F`) ist bewusst nicht enthalten. Die App läuft nur im Vordergru
 ## Verhalten am Gerät
 
 - Das Gerät quittiert keine Kommandos. Die gemeldete Länge steht auf den Seiten „Zähler nullen“ und „Länge setzen“. Entprellzeit und Faktor meldet das Gerät nicht zurück, sie lassen sich nur an der seriellen Konsole mit `status` prüfen.
-- Kommandos gehen per Unicast an die Adresse, von der die `$ISLWND`-Sätze kommen, und auf den eingestellten Port (Standard 1467).
+- Kommandos gehen per Unicast an die Adresse, von der die `$ISLWND`-Sätze kommen, und auf den eingestellten Port (Standard 1458).
 - Die App bindet ihren Socket an das WLAN, auch wenn dieses keinen Internetzugang hat.
 - Das Feld `ChainDirection` meldet den Zustand des Signals und nicht, ob die Kette läuft. Es bleibt also auch beim Stillstand gesetzt.
 
@@ -70,7 +70,7 @@ Das Icon ist die Silhouette aus dem Logo der Ismé, ohne Schriftzug. Die Kanten 
 `tools/simulate_device.py` verhält sich im Netz wie das Gerät, `tools/simulate_ydwg.py` wie die Bridge mit dem Abgassensor. Die Temperatur steigt und fällt dabei, damit sich der Alarm testen lässt. PC und Telefon müssen im selben WLAN sein:
 
 ```
-python3 tools/simulate_device.py --port 1467
+python3 tools/simulate_device.py --port 1458
 python3 tools/simulate_ydwg.py --start 40 --step 2 --max 60
 ```
 

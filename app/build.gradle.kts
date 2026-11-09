@@ -27,8 +27,8 @@ android {
         applicationId = "ch.sy_isme.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 4
-        versionName = "2.0.0"
+        versionCode = 5
+        versionName = "2.0.1"
     }
 
     val fixedSigning = if (signingKeystore != null && signingPassword != null) {
