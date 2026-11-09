@@ -25,11 +25,13 @@
     <string name="label_starts">Systemstarts</string>
     <string name="label_actual_runtime">Laufzeit seit Start</string>
     <string name="label_total_runtime">Laufzeit gesamt</string>
-    <string name="label_device">Daten von</string>
+    <string name="label_device">ChainCounter-Adresse</string>
+    <string name="label_bridge">NMEA2000-Bridge-Adresse</string>
     <string name="label_version">App-Version</string>
     <string name="label_invalid">Ungültige Sätze verworfen</string>
 
     <string name="send">Senden</string>
+    <string name="save">Speichern</string>
     <string name="current_length">Das Gerät meldet %1$s m.</string>
     <string name="counter_storage_hint">Das Gerät speichert den neuen Wert bei der nächsten periodischen Speicherung (alle 15 Minuten) oder bei einem Stromausfall.</string>
     <string name="no_readback_hint">Das Gerät meldet diesen Wert nicht zurück. Prüfen lässt er sich nur an der seriellen Konsole mit status.</string>
@@ -41,11 +43,12 @@
     <string name="length_hint">Ganze Meter, 0 bis %1$d</string>
     <string name="length_sent">Länge %1$d m gesendet.</string>
 
-    <string name="port_title">Portnummer</string>
+    <string name="port_title">Port ChainCounter</string>
     <string name="port_message">Ändert nur den Port dieser App. Am Gerät wird der Port an der seriellen Konsole mit port= gesetzt.</string>
     <string name="port_confirm">Port ändern</string>
     <string name="port_hint">%1$d bis %2$d</string>
     <string name="port_changed">Port %1$d eingestellt.</string>
+    <string name="port_in_use">Diesen Port verwendet schon die andere Verbindung.</string>
 
     <string name="debounce_title">Entprellzeit</string>
     <string name="debounce_hint">Millisekunden, %1$d bis %2$d</string>
@@ -58,6 +61,27 @@
     <string name="restart_title">Restart</string>
     <string name="restart_message">Das Gerät speichert seine Daten und startet neu. Der Empfang fällt dabei kurz aus. Dafür braucht das Gerät mindestens Firmware 1.2.0.</string>
     <string name="restart_sent">Restart gesendet.</string>
+
+    <string name="page_chain">Ankerkette</string>
+    <string name="page_n2k">NMEA2000</string>
+    <string name="page_position">Seite %1$d von %2$d, tippen oder wischen zum Wechseln</string>
+
+    <string name="label_exhaust">Abgastemperatur</string>
+    <string name="label_alarm_limit">Alarmwert</string>
+    <string name="celsius_value">%1$s °C</string>
+    <string name="celsius_whole">%1$d °C</string>
+    <string name="alarm_banner">Abgastemperatur %1$s °C, über dem Alarmwert %2$d °C</string>
+    <string name="mute">Ton aus</string>
+    <string name="exhaust_stale">Keine Abgastemperatur seit %1$d s. Der Wert ist veraltet.</string>
+    <string name="exhaust_waiting_sensor">Die Bridge sendet, aber der Abgassensor meldet sich nicht.</string>
+
+    <string name="n2k_port_title">Port NMEA2000</string>
+    <string name="n2k_port_message">UDP-Port, auf dem die NMEA2000-Bridge (YDWG-02) im RAW-Format sendet.</string>
+
+    <string name="alarm_title">Alarmwert Abgas</string>
+    <string name="alarm_message">Liegt die Abgastemperatur darüber, zeigt die App einen Alarm und gibt einen Ton aus. Der Alarm endet, wenn die Temperatur 1 °C unter den Alarmwert fällt.</string>
+    <string name="alarm_hint">Ganze Grad Celsius, %1$d bis %2$d</string>
+    <string name="alarm_saved">Alarmwert %1$d °C gespeichert.</string>
 
     <string name="command_no_device">Nicht gesendet: Vom Gerät kommen keine aktuellen Daten.</string>
     <string name="command_send_failed">Senden fehlgeschlagen: %1$s</string>

@@ -4,7 +4,7 @@ import com.example.chaincounter.protocol.WindlassData
 import java.net.InetAddress
 
 enum class Screen {
-    MAIN, SETTINGS, INFO, ZERO, LENGTH, PORT, DEBOUNCE, FACTOR, RESTART;
+    MAIN, SETTINGS, INFO, ZERO, LENGTH, PORT, DEBOUNCE, FACTOR, RESTART, N2K_PORT, EXHAUST_ALARM;
 
     val isDetail: Boolean get() = this != MAIN && this != SETTINGS && this != INFO
 }
@@ -12,6 +12,12 @@ enum class Screen {
 /** Zustand, der den Wechsel zwischen Hell und Dunkel ueberlebt. Enthaelt keinen Android-Code. */
 class SessionState {
     var screen = Screen.MAIN
+
+    /** 0 = Ankerkette, 1 = NMEA2000 */
+    var page = 0
+    val exhaust = ExhaustMonitor()
+    var bridgeAddress: InetAddress? = null
+    var n2kReceiveError: String? = null
     var lastData: WindlassData? = null
         private set
     var deviceAddress: InetAddress? = null

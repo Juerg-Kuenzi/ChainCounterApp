@@ -16,6 +16,13 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <!-- Auf dem Alarmbalken: Rahmen und Schrift in der Gegenfarbe des Balkens. -->
+    <style name="AlarmButton" parent="ActionButton">
+        <item name="android:background">@drawable/button_alarm</item>
+        <item name="android:textColor">@color/on_warning</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="MenuRow">
         <item name="android:background">?android:attr/selectableItemBackground</item>
         <item name="android:gravity">center_vertical|start</item>
