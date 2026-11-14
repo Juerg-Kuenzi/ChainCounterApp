@@ -22,6 +22,13 @@ class NmeaTest {
         assertEquals(WindlassData(12.4, ChainDirection.DOWN, 24.1, 17, 86400, 3605), d)
     }
 
+    @Test fun parsesNewProprietarySentence() {
+        val d = parsed("\$PXISWND,12.4,0,24.1,17,86400,3605*43")
+        assertEquals(WindlassData(12.4, ChainDirection.DOWN, 24.1, 17, 86400, 3605), d)
+        assertTrue(Nmea.parse("\$PXISWND,12.4,0,24.1,17,86400,3605*07") is ParseResult.Invalid)
+        assertEquals(ParseResult.OtherSentence("PXISWNS"), Nmea.parse("\$PXISWNS,C*37"))
+    }
+
     @Test fun parsesDirectionUpNegativeLengthAndLineEnd() {
         val d = parsed(Nmea.sentence("ISLWND,-1.2,1,12.0,1,0,0") + "\r\n")
         assertEquals(-1.2, d.chainLengthM, 0.0)
