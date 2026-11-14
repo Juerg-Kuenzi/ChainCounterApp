@@ -1,6 +1,6 @@
 # Ismé
 
-Android-App für die Segelyacht Ismé: für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde, und für Werte vom NMEA2000-Bus des Boots. Die App zeigt die Daten des Geräts (`$PXISWND`, bis Firmware 1.2.1 `$ISLWND`) live an und sendet Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.7](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.7.odt) im Firmware-Repository.
+Android-App für die Segelyacht Ismé: für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde, und für Werte vom NMEA2000-Bus des Boots. Die App zeigt die Daten des Geräts (`$PXISWND`, bis Firmware 1.2.1 `$ISLWND`) live an und sendet Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.8](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.8.odt) im Firmware-Repository.
 
 ## Funktionen
 

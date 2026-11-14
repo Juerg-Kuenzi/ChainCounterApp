@@ -4,7 +4,7 @@ import java.util.Locale
 
 enum class ChainDirection { DOWN, UP }
 
-/** Inhalt eines $PXISWND-Satzes (frueher $ISLWND) gemaess Spezifikation V1.7, Kapitel Tx. */
+/** Inhalt eines $PXISWND-Satzes (frueher $ISLWND) gemaess Spezifikation V1.8, Kapitel Tx. */
 data class WindlassData(
     val chainLengthM: Double,
     val direction: ChainDirection,
