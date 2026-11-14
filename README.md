@@ -1,6 +1,6 @@
 # Ismé
 
-Android-App für die Segelyacht Ismé: für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde, und für Werte vom NMEA2000-Bus des Boots. Die App zeigt die `$ISLWND`-Daten des Geräts live an und sendet `$ISLWNS`-Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.7](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.7.odt) im Firmware-Repository.
+Android-App für die Segelyacht Ismé: für den [ChainCounter](https://github.com/Juerg-Kuenzi/ChainCounter), den Kettenzähler einer Ankerwinde, und für Werte vom NMEA2000-Bus des Boots. Die App zeigt die Daten des Geräts (`$PXISWND`, bis Firmware 1.2.1 `$ISLWND`) live an und sendet Kommandos per UDP. Grundlage ist die [HW/SW-Spezifikation V1.7](https://github.com/Juerg-Kuenzi/ChainCounter/blob/main/docs/ChainCounterSpecification_V1.7.odt) im Firmware-Repository.
 
 ## Funktionen
 
@@ -18,7 +18,7 @@ Factory Reset (`F`) ist bewusst nicht enthalten. Die App läuft nur im Vordergru
 ## Verhalten am Gerät
 
 - Das Gerät quittiert keine Kommandos. Die gemeldete Länge steht auf den Seiten „Zähler nullen“ und „Länge setzen“. Entprellzeit und Faktor meldet das Gerät nicht zurück, sie lassen sich nur an der seriellen Konsole mit `status` prüfen.
-- Kommandos gehen per Unicast an die Adresse, von der die `$ISLWND`-Sätze kommen, und auf den eingestellten Port (Standard 1458).
+- Kommandos gehen per Unicast an die Adresse, von der die Datensätze kommen, und auf den eingestellten Port (Standard 1458).
 - Die App bindet ihren Socket an das WLAN, auch wenn dieses keinen Internetzugang hat.
 - Das Feld `ChainDirection` meldet den Zustand des Signals und nicht, ob die Kette läuft. Es bleibt also auch beim Stillstand gesetzt.
 
@@ -82,8 +82,8 @@ app/src/main/java/ch/sy_isme/app/
   SessionState.kt      Datenstand, Datenausfall und Empfangsmeldung
   ExhaustMonitor.kt    Abgastemperatur, Datenausfall und Alarm
   net/UdpLink.kt       UDP senden und empfangen, ohne Android-Abhängigkeit
-  protocol/Nmea.kt     Checksumme und Parser für $ISLWND
-  protocol/Commands.kt $ISLWNS-Kommandos und Prüfung der Eingaben
+  protocol/Nmea.kt     Checksumme und Parser für $PXISWND (und $ISLWND)
+  protocol/Commands.kt Kommandos ($ISLWNS) und Prüfung der Eingaben
   protocol/Format.kt   Zahlen und Laufzeiten formatieren
   protocol/YdRaw.kt    YDWG-02-RAW-Format, PGN aus der CAN-ID
   protocol/N2kTemperature.kt  PGN 130312/130316, Auswahl des Sensors

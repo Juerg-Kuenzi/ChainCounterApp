@@ -2,7 +2,13 @@ package ch.sy_isme.app.protocol
 
 import java.math.BigDecimal
 
-/** Kommandos $ISLWNS. Factory Reset (F) ist in dieser App bewusst nicht enthalten. */
+/**
+ * Kommandos. Factory Reset (F) ist in dieser App bewusst nicht enthalten.
+ *
+ * Uebergangsphase: Die App sendet noch die alte Form $ISLWNS. Die versteht jede
+ * ChainCounter-Firmware, auch 1.3.0 (dort zusaetzlich zu $PXISWNS). Erst wenn alle
+ * Geraete aktualisiert sind, auf $PXISWNS umstellen.
+ */
 sealed class Command(private val parameters: String) {
     data object ZeroCounter : Command("C")
     data object Restart : Command("R")

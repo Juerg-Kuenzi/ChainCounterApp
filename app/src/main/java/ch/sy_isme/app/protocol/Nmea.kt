@@ -4,7 +4,7 @@ import java.util.Locale
 
 enum class ChainDirection { DOWN, UP }
 
-/** Inhalt eines $ISLWND-Satzes gemaess Spezifikation V1.7, Kapitel Tx. */
+/** Inhalt eines $PXISWND-Satzes (frueher $ISLWND) gemaess Spezifikation V1.7, Kapitel Tx. */
 data class WindlassData(
     val chainLengthM: Double,
     val direction: ChainDirection,
@@ -24,6 +24,12 @@ sealed interface ParseResult {
 }
 
 object Nmea {
+    /** Datensatz ab ChainCounter-Firmware 1.3.0. */
+    const val DATA_ADDRESS = "PXISWND"
+
+    /** Uebergangsphase: alter Datensatz bis Firmware 1.2.1, spaeter entfernen. */
+    const val DATA_ADDRESS_LEGACY = "ISLWND"
+
     private const val MAX_U32 = 0xFFFFFFFFL
     private val DECIMAL = Regex("""-?\d+(\.\d+)?""")
     private val INTEGER = Regex("""-?\d+""")
@@ -46,7 +52,9 @@ object Nmea {
         if (checksum(body) != given.toInt(16)) return ParseResult.Invalid("Checksumme falsch")
 
         val fields = body.split(',')
-        if (fields[0] != "ISLWND") return ParseResult.OtherSentence(fields[0])
+        if (fields[0] != DATA_ADDRESS && fields[0] != DATA_ADDRESS_LEGACY) {
+            return ParseResult.OtherSentence(fields[0])
+        }
         if (fields.size != 7) return ParseResult.Invalid("${fields.size - 1} statt 6 Felder")
 
         val length = decimal(fields[1]) ?: return ParseResult.Invalid("Kettenlaenge")

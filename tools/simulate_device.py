@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Simuliert den ChainCounter: sendet 1x pro Sekunde $ISLWND und verarbeitet $ISLWNS.
+"""Simuliert den ChainCounter (Firmware 1.3.0): sendet 1x pro Sekunde $PXISWND und
+verarbeitet $PXISWNS sowie uebergangsweise $ISLWNS.
 
 PC und Telefon muessen im selben WLAN sein. Nur Python-Standardbibliothek.
 Beispiel: python3 tools/simulate_device.py --port 1458
@@ -36,7 +37,7 @@ class Device:
     def tx(self) -> str:
         runtime = int(time.monotonic() - self.started)
         length = self.turns * self.factor
-        return sentence(f"ISLWND,{length:.1f},{self.direction},24.1,1,{runtime},{runtime}")
+        return sentence(f"PXISWND,{length:.1f},{self.direction},24.1,1,{runtime},{runtime}")
 
     def handle(self, raw: str) -> str:
         match = re.fullmatch(r"\$([^*]*)\*([0-9A-Fa-f]{2})", raw)
@@ -46,7 +47,7 @@ class Device:
         if checksum(body) != int(given, 16):
             return "FEHLER Checksumme"
         fields = body.split(",")
-        if fields[0] != "ISLWNS":
+        if fields[0] not in ("PXISWNS", "ISLWNS"):
             return "ignoriert"
         command, args = fields[1], fields[2:]
         if command == "C" and not args:
@@ -69,7 +70,7 @@ class Device:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=1458)
-    parser.add_argument("--target", default="255.255.255.255", help="Ziel der $ISLWND-Saetze")
+    parser.add_argument("--target", default="255.255.255.255", help="Ziel der $PXISWND-Saetze")
     parser.add_argument("--target-port", type=int, help="Zielport, Standard: --port")
     parser.add_argument("--seconds", type=float, help="nach dieser Zeit beenden")
     args = parser.parse_args()
@@ -94,7 +95,7 @@ def main() -> None:
         except socket.timeout:
             continue
         text = data.decode("ascii", "replace")
-        if not text.startswith("$ISLWND"):
+        if not text.startswith(("$PXISWND", "$ISLWND")):
             print(f"{sender[0]}: {text} -> {device.handle(text)}", flush=True)
 
 
